@@ -17,26 +17,50 @@ export async function GET(req: NextRequest){
               maxAge: 365 * 24 * 60 * 60,
               httpOnly: true,
             });
+
+            await prisma.anonymousUser.create({
+              data: {
+                id: anonId
+              }
+            });
         };
 
-        const uploaded = await prisma.uploadedProfile.findMany({
-            where: {userId: anonId},
-            select: {profileId: true}
+        let anonUser = await prisma.anonymousUser.findUnique({
+          where: {id: anonId}
         });
 
-        const seen = await prisma.seenProfile.findMany({
-            where: {userId: anonId},
-            select: {profileId: true}
-        });
+        if(!anonUser){
+          await prisma.anonymousUser.create({
+            data: {id: anonId}
+          })
+        }
 
-        const excludedIds = [
-            // ...uploaded.map((x) => x.profileId),
-            ...seen.map((x) => x.profileId),
-        ];
+        
 
+        // const uploaded = await prisma.uploadedProfile.findMany({
+        //     where: {userId: anonId},
+        //     select: {profileId: true}
+        // });
+
+        // const seen = await prisma.seenProfile.findMany({
+        //     where: {userId: anonId},
+        //     select: {profileId: true}
+        // });
+
+        // const excludedIds = [
+        //     // ...uploaded.map((x) => x.profileId),
+        //     ...seen.map((x) => x.profileId),
+        // ];
+
+        // const nextProfile = await prisma.profile.findFirst({
+        //     where: {id: {notIn: excludedIds}},
+        //     orderBy: {id: "asc"},
+        // });
+
+        const total = await prisma.profile.count();
+        const randomIndex = Math.floor(Math.random() * total);
         const nextProfile = await prisma.profile.findFirst({
-            where: {id: {notIn: excludedIds}},
-            orderBy: {id: "asc"},
+          skip: randomIndex
         });
 
         if(!nextProfile){

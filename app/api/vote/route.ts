@@ -64,6 +64,14 @@ export async function POST(req: NextRequest){
             }
         }),
 
+        prisma.votePair.create({
+            data: {
+                userId: anonId,
+                profileA: winnerId,
+                profileB: loserId,
+            }
+        }),
+
          prisma.seenProfile.createMany({
             data: [
                 {userId: anonId, profileId: winnerId},

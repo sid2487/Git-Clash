@@ -103,3 +103,11 @@ model UploadedProfile {
 
   @@unique([userId, profileId])
 }
+
+model VotePair {
+  id Int @id @default(autoincrement())
+  userId String
+  profileA Int
+  profileB Int
+  votedAt DateTime @default(now())
+}
