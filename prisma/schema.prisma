@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id         Int      @id @default(autoincrement())
+  username   String   @unique
+  avatarUrl  String?
+  followers  Int
+  stars      Int
+  repos      Int
+  totalContributions Int
+  prs        Int?
+  issues     Int?
+  commits    Int?
+  elo        Int      @default(100)
+  createdAt  DateTime @default(now())
+
+  seenProfiles     SeenProfile[]
+  uploadedProfiles UploadedProfile[]
+
+  votesWon  Vote[] @relation("WinnerRelation")
+  votesLost Vote[] @relation("LoserRelation")
+
+  weekly  WeeklyHistory[]
+  allTime AllTimeHistory[]
+}
+
+model AnonymousUser {
+  id            String   @id
+  displayName   String?
+  createdAt     DateTime @default(now())
+
+  seenProfiles     SeenProfile[]
+  uploadedProfiles UploadedProfile[]
+  votes            Vote[]
+}
+
+model Vote {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  winnerId Int
+  winner   Profile @relation("WinnerRelation", fields: [winnerId], references: [id])
+
+  loserId Int
+  loser   Profile @relation("LoserRelation", fields: [loserId], references: [id])
+
+  userId String
+  user   AnonymousUser @relation(fields: [userId], references: [id])
+}
+
+model WeeklyHistory {
+  id        Int @id @default(autoincrement())
+  week      Int
+  rank      Int
+  elo       Int
+
+  profileId Int
+  profile   Profile @relation(fields: [profileId], references: [id])
+
+  @@unique([profileId, week])
+}
+
+model AllTimeHistory {
+  id        Int @id @default(autoincrement())
+  week      Int
+  weekCount Int
+  rank      Int
+  elo       Int
+
+  profileId Int
+  profile   Profile @relation(fields: [profileId], references: [id])
+
+  @@unique([profileId, week])
+}
+
+model SeenProfile {
+  id Int @id @default(autoincrement())
+
+  userId    String
+  user      AnonymousUser @relation(fields: [userId], references: [id])
+
+  profileId Int
+  profile   Profile @relation(fields: [profileId], references: [id])
+}
+
+model UploadedProfile {
+  id Int @id @default(autoincrement())
+
+  userId    String
+  user      AnonymousUser @relation(fields: [userId], references: [id])
+
+  profileId Int
+  profile   Profile @relation(fields: [profileId], references: [id])
+
+  @@unique([userId, profileId])
+}
