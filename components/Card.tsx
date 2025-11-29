@@ -71,6 +71,12 @@ export default function Card() {
         setPair((prev) => {
           const next = [...prev];
           next[winnerIndex] = fresh;
+
+          next[loserIndex] = {
+            ...next[loserIndex],
+            elo: res.data.updatedLoserElo,
+          };
+
           return next;
         });
       }

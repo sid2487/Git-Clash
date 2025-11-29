@@ -74,7 +74,11 @@ export async function POST(req: NextRequest){
         ]);
 
        
-        const response = NextResponse.json({ success: true }, {status: 200});
+        const response = NextResponse.json({
+          success: true,
+          updatedWinnerElo: newWinnerElo,
+          updatedLoserElo: newLoserElo,
+        }, {status: 200});
 
         if (responseCookies) {
           response.cookies.set("anon_id", anonId, {
