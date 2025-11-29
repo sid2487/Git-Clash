@@ -32,7 +32,7 @@ model Profile {
   weekly  WeeklyHistory[]
   allTime AllTimeHistory[]
 }
-
+  
 model AnonymousUser {
   id            String   @id
   displayName   String?
@@ -43,7 +43,7 @@ model AnonymousUser {
   votes            Vote[]
 }
 
-model Vote {
+ model Vote {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
 
