@@ -1,6 +1,6 @@
 import Card from "@/components/Card";
 import Hero from "@/components/Hero";
-import RankPage from "@/components/Rank";
+import RankPage from "@/components/LiveRank";
 import UsernameInput from "@/components/UsernameInput";
 
 

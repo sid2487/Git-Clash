@@ -1,0 +1,8 @@
+{
+    "cron": {
+        "weeklyLeaderBoard": {
+            "schedule": "0 0 * * 0",
+            "path": "/api/cron/weekly"
+        }
+    }
+}
