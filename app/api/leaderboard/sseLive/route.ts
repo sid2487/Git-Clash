@@ -29,7 +29,7 @@ export async function GET() {
 
         send();
 
-        interval = setInterval(send, 1000);
+        interval = setInterval(send, 3000);
 
         try {
           controller.enqueue(encoder.encode(": connected\n\n"));

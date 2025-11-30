@@ -35,14 +35,15 @@ export async function GET(){
         const currentWeek = weekCount(new Date());
         const weeklyHistory = await prisma.weeklyHistory.findMany({
             where: {week: currentWeek},
-            orderBy: {rank: "asc"}
+            orderBy: {rank: "asc"},
+            include: {profile: true}
         });
 
         if(weeklyHistory.length === 0){
-            return NextResponse.json({error: "No Weekly data available"}, {status: 400});
+            return NextResponse.json([], {status: 400});
         };
 
-        return NextResponse.json({weeklyHistory}, {status: 200});
+        return NextResponse.json(weeklyHistory, {status: 200});
 
 
     } catch (error) {

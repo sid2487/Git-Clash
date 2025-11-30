@@ -1,3 +1,11 @@
 @import "tailwindcss";
 
+@keyframes flash {
+  0% { background-color: rgba(16, 185, 129, 0.3); }
+  100% { background-color: transparent; }
+}
+
+.flash-change {
+  animation: flash 0.8s ease-out;
+}
 

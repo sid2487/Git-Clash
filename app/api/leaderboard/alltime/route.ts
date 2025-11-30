@@ -31,15 +31,20 @@ export async function GET(){
           create: { id: anonId },
         });
 
-        const allTimeLeaderBoard = await prisma.profile.findMany({
-            orderBy: {elo: "desc"}
+        const allTimeLeaderBoard = await prisma.allTimeHistory.findMany({
+            orderBy: [
+                {weekCount: "desc"},
+                {rank: "asc"}
+            ],
+            include: {profile: true}
         });
 
-        if(allTimeLeaderBoard.length === 0){
-            return NextResponse.json({ error: "All Time LeaderBoard not Available at this momment" });
-        };
+        if (allTimeLeaderBoard.length === 0) {
+          return NextResponse.json([], { status: 200 });
+        }
 
-        return NextResponse.json({allTimeLeaderBoard}, {status: 200});
+
+        return NextResponse.json(allTimeLeaderBoard, {status: 200});
     } catch (error) {
         console.error(error);
         return NextResponse.json({error: "AllTimeLeaderBoard Server Error"}, {status: 500});
