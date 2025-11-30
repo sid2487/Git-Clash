@@ -33,9 +33,9 @@ export default function Card() {
     showPair();
   }, []);
 
-  const fetchOne = async () => {
+  const fetchOne = async (loserId: number, winnerId: number) => {
     try {
-      const res = await axios.get("/api/one");
+      const res = await axios.get(`/api/one?winner=${winnerId}&loser=${loserId}`);
       if (res.status === 200) {
         return res.data.result;
       }
@@ -59,9 +59,9 @@ export default function Card() {
 
       if (res.status === 200) {
         setAnimatingIndex(winnerIndex);
-        await new Promise((res) => setTimeout(res, 200));
+        await new Promise((res) => setTimeout(res, 100));
 
-        const fresh = await fetchOne();
+        const fresh = await fetchOne(loserId, winnerId);
 
         if (!fresh) {
           setError("No more profiles available.");

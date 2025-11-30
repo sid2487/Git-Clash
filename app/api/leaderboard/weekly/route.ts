@@ -26,15 +26,11 @@ export async function GET(){
             return res;
         };
 
-        let anonUser = await prisma.anonymousUser.findUnique({
-            where: {id: anonId}
+        await prisma.anonymousUser.upsert({
+          where: { id: anonId },
+          update: {},
+          create: { id: anonId },
         });
-
-        if(!anonUser){
-            await prisma.anonymousUser.create({
-                data: {id: anonId}
-            });
-        };
 
         const currentWeek = weekCount(new Date());
         const weeklyHistory = await prisma.weeklyHistory.findMany({

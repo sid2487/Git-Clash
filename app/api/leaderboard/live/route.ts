@@ -25,17 +25,11 @@ export async function GET(){
             return res;
         };
 
-        const anonUser = await prisma.anonymousUser.findUnique({
-            where: {
-                id: anonId
-            }
+        await prisma.anonymousUser.upsert({
+          where: { id: anonId },
+          update: {},
+          create: { id: anonId },
         });
-
-        if(!anonUser){
-            await prisma.anonymousUser.create({
-                data: {id: anonId}
-            })
-        };
 
         const liveLeaderBoard = await prisma.profile.findMany({
             orderBy: {

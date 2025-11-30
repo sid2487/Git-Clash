@@ -25,50 +25,33 @@ export async function GET(req: NextRequest){
             });
         };
 
-        let anonUser = await prisma.anonymousUser.findUnique({
-          where: {id: anonId}
+       await prisma.anonymousUser.upsert({
+         where: { id: anonId },
+         update: {},
+         create: { id: anonId },
+       });
+
+
+        const loserId = Number(req.nextUrl.searchParams.get("loser"));
+        const winnerId = Number(req.nextUrl.searchParams.get("winner"));
+
+        const profiles = await prisma.profile.findMany({
+          where: {
+            id: {notIn: [winnerId, loserId]}
+          }
         });
 
-        if(!anonUser){
-          await prisma.anonymousUser.create({
-            data: {id: anonId}
-          })
-        }
+        if(profiles.length === 0){
+                return NextResponse.json(
+                  { error: "No more profiles" },
+                  { status: 400 }
+                );
 
-        
-
-        // const uploaded = await prisma.uploadedProfile.findMany({
-        //     where: {userId: anonId},
-        //     select: {profileId: true}
-        // });
-
-        // const seen = await prisma.seenProfile.findMany({
-        //     where: {userId: anonId},
-        //     select: {profileId: true}
-        // });
-
-        // const excludedIds = [
-        //     // ...uploaded.map((x) => x.profileId),
-        //     ...seen.map((x) => x.profileId),
-        // ];
-
-        // const nextProfile = await prisma.profile.findFirst({
-        //     where: {id: {notIn: excludedIds}},
-        //     orderBy: {id: "asc"},
-        // });
-
-        const total = await prisma.profile.count();
-        const randomIndex = Math.floor(Math.random() * total);
-        const nextProfile = await prisma.profile.findFirst({
-          skip: randomIndex
-        });
-
-        if(!nextProfile){
-         return NextResponse.json(
-           { error: "No more profiles available" },
-           { status: 400 }
-         );   
         };
+
+        const random = Math.floor(Math.random() * profiles.length);
+        const nextProfile = profiles[random];
+
 
         await prisma.seenProfile.create({
             data: {

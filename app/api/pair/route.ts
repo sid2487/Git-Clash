@@ -25,54 +25,22 @@ export async function GET(req: NextRequest) {
         return res;
       }
 
-      let anonUser = await prisma.anonymousUser.findUnique({
-        where: { id: anonId },
-      });
-
-      if (!anonUser) {
-        await prisma.anonymousUser.create({
-          data: { id: anonId },
-        });
-      }
-
-      // const uploaded = await prisma.uploadedProfile.findMany({
-      //   where: {
-      //     userId: anonId,
-      //   },
-      //   select: {
-      //     profileId: true,
-      //   },
+      // let anonUser = await prisma.anonymousUser.findUnique({
+      //   where: { id: anonId },
       // });
 
-      // const voted = await prisma.vote.findMany({
-      //   where: {userId: anonId},
-      //   select: {
-      //     winnerId: true
-      //   }
-      // })
+      // if (!anonUser) {
+      //   await prisma.anonymousUser.create({
+      //     data: { id: anonId },
+      //   });
+      // }
 
-      // const seen = await prisma.seenProfile.findMany({
-      //   where: {
-      //     userId: anonId,
-      //   },
-      //   select: {
-      //     profileId: true,
-      //   },
-      // });
+      await prisma.anonymousUser.upsert({
+        where: {id: anonId},
+        update: {},
+        create: {id: anonId},
+      })
 
-      // const excludedIds = [
-      //   // ...uploaded.map((x) => x.profileId),
-      //   ...voted.map((x) => x.loserId),
-      //   // ...voted.map((x) => x.winnerId),
-
-      //   // ...seen.map((x) => x.profileId),
-      // ];
-
-      // const pair = await prisma.profile.findMany({
-      //   where: { id: { notIn: excludedIds } },
-      //   orderBy: { id: "asc" },
-      //   take: 50,
-      // });
 
       const votePairs = await prisma.votePair.findMany({
         where: {
