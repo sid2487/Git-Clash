@@ -14,7 +14,10 @@ export default function HomePage() {
       <div className="pt-10">
         <UsernameInput />
       </div>
+
+      <div className="pt-10">  
       <RankPage />
+      </div>
     </div>
   );
 }
