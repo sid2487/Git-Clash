@@ -52,7 +52,7 @@ export default function Navbar() {
 
           <li>
             <a
-              href="https://github.com/sid2487/Git-Clash"
+              href="https://github.com/sid2487/Git-Clash  "
               target="_blank"
               className="
                 px-4 py-2 rounded-lg flex items-center gap-2
