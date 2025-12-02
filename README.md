@@ -5,8 +5,8 @@ The platform updates ranks **in real time**, usign SSE(Server Sent Events) ensur
 The project is fully serverless and optimized with caching, scheduled jobs, and a fast UI powered by modern web technologies.
 
 
-![Git Clash Banner] (![Uploading Screenshot from 2025-11-29 19-09-26.png…]()
-)
+![Git Clash Banner] <img width="843" height="961" alt="Screenshot from 2025-11-29 19-09-26" src="https://github.com/user-attachments/assets/dfce7753-0da4-4c83-a3d8-47bedcdf3f92" />
+
 
 ---
 
