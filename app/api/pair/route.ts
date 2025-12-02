@@ -37,7 +37,7 @@ export async function GET() {
 
     if (!allProfiles) {
       const fromDB = await prisma.profile.findMany();
-      await redis.set("profiles:list", JSON.stringify(fromDB));
+      await redis.set("profiles:list", JSON.stringify(fromDB), );
       allProfiles = fromDB;
     } else {
       if (typeof allProfiles === "string") {
