@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { redis } from "@/lib/redis";
 
 export async function GET() {
   const encoder = new TextEncoder();
@@ -9,39 +9,37 @@ export async function GET() {
         let closed = false;
         let interval: NodeJS.Timeout;
 
-        const send = async () => {
-          if (closed) return;
-
-          const liveLeaderBoard = await prisma.profile.findMany({
-            orderBy: { elo: "desc" },
-            take: 10,
-          });
-
-          try {
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify(liveLeaderBoard)}\n\n`)
-            );
-          } catch (err) {
+        const cleanup = () => {
+          if (!closed) {
             closed = true;
             clearInterval(interval);
+            try {
+              controller.close();
+            } catch {}
           }
         };
 
-        send();
+        const send = async () => {
+          if (closed) return;
 
+          let leaderboard = await redis.get("leaderboard:live");
+          if (typeof leaderboard === "string") {
+            leaderboard = JSON.parse(leaderboard);
+          }
+
+          try {
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify(leaderboard || [])}\n\n`)
+            );
+          } catch (err) {
+            cleanup(); 
+          }
+        };
+
+        send(); 
         interval = setInterval(send, 3000);
 
-        try {
-          controller.enqueue(encoder.encode(": connected\n\n"));
-        } catch {}
-
-        return () => {
-          closed = true;
-          clearInterval(interval);
-          try {
-            controller.close();
-          } catch {}
-        };
+        return cleanup;
       },
     }),
     {

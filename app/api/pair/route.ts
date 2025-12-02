@@ -1,117 +1,106 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import {prisma} from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
+import { redis } from "@/lib/redis";
 
-export async function GET(req: NextRequest) {
-    try {
-      const cookieStore = await cookies();
-      let anonId = cookieStore.get("anon_id")?.value;
+function pairKey(a: number, b: number) {
+  return a < b ? `${a}:${b}` : `${b}:${a}`;
+}
 
-      if (!anonId) {
-        anonId = crypto.randomUUID();
+export async function GET() {
+  try {
+    const cookieStore = await cookies();
+    let anonId = cookieStore.get("anon_id")?.value;
 
-        const res = NextResponse.json({ created: true });
-        res.cookies.set("anon_id", anonId, {
-          path: "/",
-          maxAge: 365 * 24 * 60 * 60,
-          httpOnly: true,
-        });
+    let res: NextResponse | null = null;
 
-        await prisma.anonymousUser.create({
-          data: {
-            id: anonId,
-          },
-        });
-        return res;
-      }
+    if (!anonId) {
+      anonId = crypto.randomUUID();
 
-      // let anonUser = await prisma.anonymousUser.findUnique({
-      //   where: { id: anonId },
-      // });
-
-      // if (!anonUser) {
-      //   await prisma.anonymousUser.create({
-      //     data: { id: anonId },
-      //   });
-      // }
-
-      await prisma.anonymousUser.upsert({
-        where: {id: anonId},
-        update: {},
-        create: {id: anonId},
-      })
-
-
-      const votePairs = await prisma.votePair.findMany({
-        where: {
-          userId: anonId,
-        }
+      res = NextResponse.json({});
+      res.cookies.set("anon_id", anonId, {
+        path: "/",
+        maxAge: 365 * 24 * 60 * 60,
+        httpOnly: true,
       });
 
-      function alreadyVoted(a: number, b: number){
-        return votePairs.some((p) => 
-        (p.profileA === a && p.profileB === b) ||
-        (p.profileA === b && p.profileB === a)
-        )
+      await prisma.anonymousUser.create({ data: { id: anonId } });
+    }
+
+    await prisma.anonymousUser.upsert({
+      where: { id: anonId },
+      update: {},
+      create: { id: anonId },
+    });
+
+    let allProfiles: any = await redis.get("profiles:list");
+
+    if (!allProfiles) {
+      const fromDB = await prisma.profile.findMany();
+      await redis.set("profiles:list", JSON.stringify(fromDB));
+      allProfiles = fromDB;
+    } else {
+      if (typeof allProfiles === "string") {
+        allProfiles = JSON.parse(allProfiles);
+      }
+    }
+
+    if (allProfiles.length < 2) {
+      return NextResponse.json(
+        { error: "Not enough profiles" },
+        { status: 400 }
+      );
+    }
+
+    let A = allProfiles[Math.floor(Math.random() * allProfiles.length)];
+    let B = allProfiles[Math.floor(Math.random() * allProfiles.length)];
+
+    while (A.id === B.id) {
+      B = allProfiles[Math.floor(Math.random() * allProfiles.length)];
+    }
+
+    const key = pairKey(A.id, B.id);
+    const seen = await redis.sismember(`seen_pairs:${anonId}`, key);
+
+    if (seen) {
+      const shuffled = [...allProfiles];
+
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
 
-      const allProfiles = await prisma.profile.findMany(); // later will add paginat
+      let found = null;
 
-      if (allProfiles.length < 2) {
-        console.log("Only Profiles");
+      for (let i = 0; i < shuffled.length; i++) {
+        for (let j = i + 1; j < shuffled.length; j++) {
+          const k = pairKey(shuffled[i].id, shuffled[j].id);
+          const seenBefore = await redis.sismember(`seen_pairs:${anonId}`, k);
 
+          if (!seenBefore) {
+            found = [shuffled[i], shuffled[j]];
+            break;
+          }
+        }
+        if (found) break;
+      }
+
+      if (!found) {
         return NextResponse.json(
-          { error: "Not enough Profiles to show" },
+          { error: "No fresh pair available" },
           { status: 400 }
         );
       }
 
-      // const shuffled = allProfiles.sort(() => Math.random() - 0.5);
-      function shuffle<T>(array: T[]): T[] {
-        for (let i = array.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-      }
-
-
-      const shuffled = shuffle(allProfiles);
-
-     let result = null;
-
-     for(let i=0; i<shuffled.length; i++){
-      for(let j=i+1; j<shuffled.length; j++){
-        const A = shuffled[i];
-        const B = shuffled[j];
-
-        if(!alreadyVoted(A.id, B.id)){
-          result = [A, B];
-          break;
-        }
-      }
-      if(result) break;
-     }
-
-     if(!result){
-      return NextResponse.json({error: "No fresh pair available"}, {status: 400});
-     };
-
-
-
-      await prisma.seenProfile.createMany({
-        data: result.map((p) => ({
-          userId: anonId,
-          profileId: p.id,
-        })),
-      });
-
-      return NextResponse.json({ result }, { status: 200 });
-    } catch (err: any) {
-        console.log("Server Error from api/pair", err);
-        return NextResponse.json({
-            error: "Server Crashed",
-            details: err?.message,
-        }, {status: 500 });
+      A = found[0];
+      B = found[1];
     }
+
+    await redis.sadd(`seen_pairs:${anonId}`, pairKey(A.id, B.id));
+
+    return NextResponse.json({ result: [A, B] });
+  } catch (err) {
+    console.error("PAIR ERROR", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
 }

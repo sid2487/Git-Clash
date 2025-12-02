@@ -1,11 +1,12 @@
 @import "tailwindcss";
-
 @keyframes flash {
-  0% { background-color: rgba(16, 185, 129, 0.3); }
-  100% { background-color: transparent; }
+  0% { background-color: rgba(16,185,129,0.12); transform: translateY(-4px); }
+  50% { background-color: rgba(16,185,129,0.12); transform: translateY(0); }
+  100% { background-color: transparent; transform: translateY(0); }
 }
 
 .flash-change {
-  animation: flash 0.8s ease-out;
+  animation: flash 700ms ease-out;
+  box-shadow: 0 6px 18px rgba(16,185,129,0.06);
 }
 

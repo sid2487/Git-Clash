@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Leader {
   id: number;
@@ -9,18 +9,21 @@ interface Leader {
   elo: number;
 }
 
-
 export default function RankPage() {
   const [leaders, setLeaders] = useState<Leader[]>([]);
-    const [previousLeaders, setPreviousLeaders] = useState<Leader[]>([]);
+  const [previousLeaders, setPreviousLeaders] = useState<Leader[]>([]);
+  const leadersRef = useRef<Leader[]>([]); // keep latest leaders
 
+  useEffect(() => {
+    leadersRef.current = leaders;
+  }, [leaders]);
 
   useEffect(() => {
     async function loadInitial() {
       try {
         const res = await axios.get("/api/leaderboard/live");
         if (res.status === 200) {
-          setLeaders(res.data.liveLeaderBoard);
+          setLeaders(res.data.liveLeaderBoard || []);
         }
       } catch (error: any) {
         console.error(
@@ -28,18 +31,28 @@ export default function RankPage() {
         );
       }
     }
+
     loadInitial();
 
-    // open sse stream
-    const stream = new EventSource("api/leaderboard/sseLive");
+    const stream = new EventSource("/api/leaderboard/sseLive");
+
     stream.onmessage = (event) => {
-      const updated = JSON.parse(event.data);
-      setPreviousLeaders(leaders);
-      setLeaders(updated);
+      try {
+        const updated: Leader[] = JSON.parse(event.data || "[]");
+
+        setPreviousLeaders(leadersRef.current || []);
+        setLeaders(updated || []);
+      } catch (e) {
+        console.error("Invalid SSE payload", e);
+      }
     };
 
-    return () => stream.close();
-  }, [leaders]);
+    stream.onerror = () => {};
+
+    return () => {
+      stream.close();
+    };
+  }, []); 
 
   return (
     <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
@@ -52,8 +65,7 @@ export default function RankPage() {
 
       {leaders.map((user, index) => {
         const old = previousLeaders.find((p) => p.id === user.id);
-
-        const eloChanged = old && old.elo !== user.elo;
+        const eloChanged = !!old && old.elo !== user.elo;
 
         return (
           <div
@@ -81,6 +93,7 @@ export default function RankPage() {
               href={`https://github.com/${user.username}`}
               target="_blank"
               className="text-center text-emerald-400 hover:text-emerald-300"
+              rel="noreferrer"
             >
               Visit →
             </a>
