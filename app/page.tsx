@@ -1,4 +1,5 @@
 import Card from "@/components/Card";
+import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import RankPage from "@/components/LiveRank";
 import UsernameInput from "@/components/UsernameInput";
@@ -15,8 +16,12 @@ export default function HomePage() {
         <UsernameInput />
       </div>
 
-      <div className="pt-10">  
-      <RankPage />
+      <div className="pt-10">
+        <RankPage />
+      </div>
+
+      <div className="pt-10">
+        <Footer />
       </div>
     </div>
   );
