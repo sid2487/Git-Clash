@@ -68,7 +68,7 @@ The project is fully serverless and optimized with caching, scheduled jobs, and 
 | Layer | Technology |
 |-------|------------|
 | **Frontend** | Next.js 14 (App Router), TailwindCSS |
-| **Backend** | Next.js Server Actions & Routes |
+| **Backend** | Next.js Server Actions & Routes | SSE(Server Sent Events)
 | **Database** | NeonDB (PostgreSQL) |
 | **ORM** | Prisma |
 | **Cache** | Upstash Redis |
