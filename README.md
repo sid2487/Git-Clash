@@ -140,10 +140,10 @@ Contributions are welcome!
 
 Fork the repo
 
-# Thank you so much for using this!!
-
 Create a feature branch
 
 Make changes
 
 Submit a PR
+
+# Thank you so much for using this!!
