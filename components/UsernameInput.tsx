@@ -34,7 +34,6 @@ export default function UsernameInput() {
   }
 
   if (loading) return <p className="text-white text-center">Loading...</p>;
-  if (error) return <p className="text-red-400 text-center">{error}</p>;
 
   return (
     <div className="w-full flex justify-center mt-8">
@@ -54,6 +53,8 @@ export default function UsernameInput() {
         <h2 className="text-white text-lg font-semibold text-center">
           Enter Username To Participate
         </h2>
+
+        {error && <p className="text-red-400 text-center text-sm">{error}</p>}
 
         <input
           type="text"

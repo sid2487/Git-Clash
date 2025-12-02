@@ -100,6 +100,15 @@ export default function RankPage() {
           </div>
         );
       })}
+
+      <div className="mt-4 flex justify-center">
+        <a
+          href="/liverank"
+          className="px-4 py-2 rounded-lg border border-white/20 text-white/80 hover:text-white hover:bg-white/10 transition"
+        >
+          See All Ranks →
+        </a>
+      </div>
     </div>
   );
 }
