@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@upstash/qstash": "^2.8.4",
     "@upstash/redis": "^1.35.7",
     "axios": "^1.13.2",
     "lucide-react": "^0.555.0",

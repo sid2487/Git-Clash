@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import jncu from "@/public/git-clash/jncu.jpeg"
+import logo2 from "@/public/git-clash/logo2.jpg"
 import Link from "next/link";
 
 import { Trophy, Github, Sun, Menu, X } from "lucide-react";
@@ -28,7 +28,7 @@ export default function Navbar() {
               border border-white/10
               shadow-md shadow-black/70
             "
-              src={jncu}
+              src={logo2}
               alt="jncu"
             />
           </Link>
@@ -52,7 +52,7 @@ export default function Navbar() {
 
           <li>
             <a
-              href="https://github.com"
+              href="https://github.com/sid2487/Git-Clash"
               target="_blank"
               className="
                 px-4 py-2 rounded-lg flex items-center gap-2
