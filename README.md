@@ -1,4 +1,5 @@
-# 🚀 Git Clash — ELO-Based Developer Ranking Arena
+# 🚀 Git Clash — ELO-Based Developer Ranking Arena 
+Live link: https://git-clash.vercel.app/
 
 Git Clash is a competitive ranking platform where developers upload GitHub profiles, vote in head-to-head battles, and climb the leaderboard using an **ELO rating system**.  
 The platform updates ranks **in real time**, usign SSE(Server Sent Events) ensuring that every vote immediately affects the leaderboard.  
