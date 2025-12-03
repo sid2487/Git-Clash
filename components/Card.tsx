@@ -97,7 +97,7 @@ export default function Card() {
       <p className="text-gray-500 text-center">Not enough profiles found.</p>
     );
 
-  const [p1, p2] = pair;
+  // const [p1, p2] = pair;
 
   const cardUI = (user: any, index: number) => {
     const isLoading = loadingIndex === index;
@@ -132,7 +132,7 @@ export default function Card() {
         <button
           onClick={() => handleVote(index)}
           disabled={loadingIndex !== null}
-          className={`mt-4 text-lg font-semibold px-6 py-2 rounded-xl transition-all duration-300 
+          className={`mt-4 text-lg font-semibold px-6 py-2 rounded-xl transition-all duration-300 cursor-pointer
             ${
               isLoading
                 ? "opacity-60 cursor-not-allowed"
